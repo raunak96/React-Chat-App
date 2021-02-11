@@ -13,23 +13,24 @@ const ChatFeed = props => {
 	const chat = chats && chats[activeChat]; // gets active Chat
 
 	const renderReadReceipts = useCallback(
-		message => {
+		(message, isMyMessage) => {
 			return chat.people.map(
 				(person, index) =>
 					person.person.username !== message.sender.username &&
-					person.last_read === message.id && (
+					person.last_read === message.id &&
+					userName !== person.person.username && (
 						<div
 							key={`read_${index}`}
 							className="read-receipt"
 							style={{
-								float: "left",
+								float: isMyMessage ? "right" : "left",
 								backgroundImage: `url(${person?.person?.avatar})`,
 							}}
 						/>
 					)
 			);
 		},
-		[chat?.people]
+		[chat?.people, userName]
 	);
 
 	const renderMessages = useCallback(() => {
@@ -58,7 +59,7 @@ const ChatFeed = props => {
 							marginRight: isMyMessage ? "18px" : "0px",
 							marginLeft: isMyMessage ? "0px" : "68px",
 						}}>
-						{renderReadReceipts(message)}
+						{renderReadReceipts(message, isMyMessage)}
 					</div>
 				</div>
 			);
