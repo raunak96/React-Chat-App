@@ -1,8 +1,15 @@
+import { Chip, makeStyles } from "@material-ui/core";
 import React, { useCallback } from "react";
 import MessageForm from "../components/MessageForm";
 import OthersMessage from "../components/OthersMessage";
 import SelfMessage from "../components/SelfMessage";
+import datesAreOnSameDay from "../util";
 
+const useStyles = makeStyles(theme => ({
+	root: {
+		backgroundColor: "rgb(162, 158, 200)",
+	},
+}));
 /**
  * @ChatFeed The component displaying messages of active chat
  * @param {Object} chatProps - provided by chatEngine.io
@@ -11,25 +18,33 @@ const ChatFeed = props => {
 	console.log(props);
 	const { messages, chats, userName, activeChat } = props;
 	const chat = chats && chats[activeChat]; // gets active Chat
+	const classes = useStyles();
 
 	const renderReadReceipts = useCallback(
-		(message, isMyMessage) => {
-			return chat.people.map(
-				(person, index) =>
-					person.person.username !== message.sender.username &&
-					person.last_read === message.id &&
-					userName !== person.person.username && (
-						<div
-							key={`read_${index}`}
-							className="read-receipt"
-							style={{
-								float: isMyMessage ? "right" : "left",
-								backgroundImage: `url(${person?.person?.avatar})`,
-							}}
-						/>
-					)
-			);
-		},
+		(message, isMyMessage) => (
+			<div
+				className="read-receipts"
+				style={{
+					marginRight: isMyMessage ? "18px" : "0px",
+					marginLeft: isMyMessage ? "0px" : "68px",
+				}}>
+				{chat.people.map(
+					(person, index) =>
+						person.person.username !== message.sender.username &&
+						person.last_read === message.id &&
+						userName !== person.person.username && (
+							<div
+								key={`read_${index}`}
+								className="read-receipt"
+								style={{
+									float: isMyMessage ? "right" : "left",
+									backgroundImage: `url(${person?.person?.avatar})`,
+								}}
+							/>
+						)
+				)}
+			</div>
+		),
 		[chat?.people, userName]
 	);
 
@@ -39,32 +54,50 @@ const ChatFeed = props => {
 		return keys.map((key, index) => {
 			const message = messages[key];
 			const previousMessageKey = index === 0 ? null : keys[index - 1];
+			const lastMessage = messages[previousMessageKey];
 			const isMyMessage = message.sender.username === userName;
-
+			const messageDate = new Date(message.created);
+			const isFirstMessageOfDay = !datesAreOnSameDay(
+				new Date(lastMessage?.created),
+				messageDate
+			);
 			return (
 				<div key={`msg_${index}`} style={{ width: "100%" }}>
 					<div className="message-block">
+						{(previousMessageKey === null ||
+							isFirstMessageOfDay) && (
+							<div className="date-block">
+								<Chip
+									className={classes.root}
+									label={`${messageDate.getDate()} ${messageDate.toLocaleString(
+										"default",
+										{ month: "long" }
+									)} ${messageDate.getFullYear()}`}
+								/>
+							</div>
+						)}
 						{isMyMessage ? (
-							<SelfMessage message={message} />
+							<SelfMessage
+								message={message}
+								time={`${messageDate
+									.toTimeString()
+									.substring(0, 5)}`}
+							/>
 						) : (
 							<OthersMessage
 								message={message}
-								lastMessage={messages[previousMessageKey]}
+								lastMessage={lastMessage}
+								time={`${messageDate
+									.toTimeString()
+									.substring(0, 5)}`}
 							/>
 						)}
 					</div>
-					<div
-						className="read-receipts"
-						style={{
-							marginRight: isMyMessage ? "18px" : "0px",
-							marginLeft: isMyMessage ? "0px" : "68px",
-						}}>
-						{renderReadReceipts(message, isMyMessage)}
-					</div>
+					{renderReadReceipts(message, isMyMessage)}
 				</div>
 			);
 		});
-	}, [messages, userName, renderReadReceipts]);
+	}, [messages, userName, renderReadReceipts, classes.root]);
 
 	return chat ? (
 		<div className="chat-feed">
