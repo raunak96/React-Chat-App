@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
 	},
 }));
 
-const LoginPage = () => {
+const LoginPage = ({ setUserDetails }) => {
 	const classes = useStyles();
 	const [formData, setFormData] = useState({
 		userName: "",
@@ -82,7 +82,7 @@ const LoginPage = () => {
 			});
 			localStorage.setItem("userName", userName);
 			localStorage.setItem("password", password);
-			window.location.reload();
+			setUserDetails({ userName, password });
 		} catch (error) {
 			setFormData(prev => ({ ...prev, formSubmissionError: true }));
 		}
