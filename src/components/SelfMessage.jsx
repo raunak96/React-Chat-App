@@ -6,7 +6,6 @@ const SelfMessage = ({ message, time }) => {
 			style={{
 				position: "relative",
 				float: "right",
-				marginTop: "5px",
 			}}>
 			<img
 				src={message.attachments[0].file}

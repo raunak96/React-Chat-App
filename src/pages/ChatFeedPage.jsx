@@ -27,6 +27,8 @@ const ChatFeed = props => {
 				style={{
 					marginRight: isMyMessage ? "18px" : "0px",
 					marginLeft: isMyMessage ? "0px" : "68px",
+					marginTop: "5px",
+					marginBottom: "5px",
 				}}>
 				{chat.people.map(
 					(person, index) =>
