@@ -1,4 +1,10 @@
-import { Chip, makeStyles } from "@material-ui/core";
+import {
+	Backdrop,
+	Chip,
+	CircularProgress,
+	makeStyles,
+	Typography,
+} from "@material-ui/core";
 import React, { useCallback } from "react";
 import MessageForm from "../components/MessageForm";
 import OthersMessage from "../components/OthersMessage";
@@ -8,6 +14,12 @@ import datesAreOnSameDay from "../util";
 const useStyles = makeStyles(theme => ({
 	root: {
 		backgroundColor: "rgb(162, 158, 200)",
+	},
+	backdrop: {
+		zIndex: theme.zIndex.drawer + 1,
+		color: "#fff",
+		display: "flex",
+		flexDirection: "column",
 	},
 }));
 /**
@@ -118,7 +130,12 @@ const ChatFeed = props => {
 			</div>
 		</div>
 	) : (
-		<div>Loading....</div>
+		<Backdrop className={classes.backdrop} open>
+			<Typography variant="h4" gutterBottom>
+				Loading...
+			</Typography>
+			<CircularProgress color="inherit" />
+		</Backdrop>
 	);
 };
 
